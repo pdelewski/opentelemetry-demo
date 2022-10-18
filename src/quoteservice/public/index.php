@@ -14,6 +14,7 @@ use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Slim\Factory\AppFactory;
 use Slim\Factory\ServerRequestCreatorFactory;
 use Slim\Routing\RouteContext;
+use Psr\Log\LoggerInterface;
 
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -43,10 +44,12 @@ $container = $containerBuilder->build();
 // Instantiate the app
 AppFactory::setContainer($container);
 $app = Bridge::create($container);
-
 // Register middleware
 //middleware starts root span based on route pattern, sets status from http code
-$app->add(function (Request $request, RequestHandler $handler) use ($tracer) {
+$app->add(function (Request $request, RequestHandler $handler) use ($tracer, $container) {
+    $logger = $container->get(LoggerInterface::class);
+    $logger->info('@@add');
+
     $parent = TraceContextPropagator::getInstance()->extract($request->getHeaders());
     $routeContext = RouteContext::fromRequest($request);
     $route = $routeContext->getRoute();

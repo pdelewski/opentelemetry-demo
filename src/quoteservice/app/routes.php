@@ -7,16 +7,16 @@ use OpenTelemetry\SDK\Trace\Tracer;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\App;
+use Psr\Log\LoggerInterface;
 
 function calculateQuote($jsonObject, Tracer $tracer): float
 {
     $quote = 0.0;
     $childSpan = $tracer
-        ->spanBuilder('calculate-quote')
+        ->spanBuilder('calculate-quote-sumo')
         ->setSpanKind(SpanKind::KIND_INTERNAL)
         ->startSpan();
     $childSpan->addEvent('Calculating quote');
-
     try {
         $numberOfItems = intval($jsonObject['numberOfItems']);
         $quote = 8.90 * $numberOfItems;
@@ -34,7 +34,10 @@ function calculateQuote($jsonObject, Tracer $tracer): float
 }
 
 return function (App $app) {
-    $app->post('/getquote', function (Request $request, Response $response, Tracer $tracer) {
+    $container = $app->getContainer();
+    $app->post('/getquote', function (Request $request, Response $response, Tracer $tracer) use ($container) {
+        $logger = $container->get(LoggerInterface::class);
+        $logger->info('@@@@@getquote');
         $span = AbstractSpan::getCurrent();
         $span->addEvent('Received get quote request, processing it');
 
