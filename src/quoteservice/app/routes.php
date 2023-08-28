@@ -10,8 +10,9 @@ use OpenTelemetry\API\Trace\SpanKind;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\App;
+use Psr\Log\LoggerInterface;
 
-function calculateQuote($jsonObject): float
+function calculateQuote($jsonObject, $logger): float
 {
     $quote = 0.0;
     $childSpan = Globals::tracerProvider()->getTracer('manual-instrumentation')
@@ -19,7 +20,7 @@ function calculateQuote($jsonObject): float
         ->setSpanKind(SpanKind::KIND_INTERNAL)
         ->startSpan();
     $childSpan->addEvent('Calculating quote');
-
+    $logger->info('Calculating quote');
     try {
         if (!array_key_exists('numberOfItems', $jsonObject)) {
             throw new \InvalidArgumentException('numberOfItems not provided');
@@ -40,13 +41,16 @@ function calculateQuote($jsonObject): float
 }
 
 return function (App $app) {
-    $app->post('/getquote', function (Request $request, Response $response) {
+    $container = $app->getContainer();
+    $app->post('/getquote', function (Request $request, Response $response) use ($container) {
+        $logger = $container->get(LoggerInterface::class);
+        $logger->info('getquote');
         $span = Span::getCurrent();
         $span->addEvent('Received get quote request, processing it');
 
         $jsonObject = $request->getParsedBody();
 
-        $data = calculateQuote($jsonObject);
+        $data = calculateQuote($jsonObject, $logger);
 
         $payload = json_encode($data);
         $response->getBody()->write($payload);

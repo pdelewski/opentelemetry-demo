@@ -12,6 +12,7 @@ use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use OpenTelemetry\API\Common\Instrumentation\Globals;
 use OpenTelemetry\API\Common\Log\LoggerHolder;
+use OpenTelemetry\API\Trace\Span;
 use OpenTelemetry\SDK\Common\Configuration\Configuration;
 use OpenTelemetry\SDK\Common\Configuration\Variables;
 use OpenTelemetry\SDK\Metrics\MeterProviderInterface;
@@ -22,12 +23,29 @@ use React\EventLoop\Loop;
 use React\Http\HttpServer;
 use React\Socket\SocketServer;
 use Slim\Factory\AppFactory;
+use Psr\Log\LoggerInterface;
 
 require __DIR__ . '/../vendor/autoload.php';
 
 LoggerHolder::set(
     new Logger('otel-php', [new StreamHandler('php://stdout', LogLevel::DEBUG)])
 );
+
+
+// Provided by platform vendor
+class TraceProcessor
+{
+    public function __invoke(\Monolog\LogRecord $record): \Monolog\LogRecord
+    {
+        $span = Span::getCurrent();
+        if ($span->isRecording()) {
+            $record->extra['trace_id'] = $span->toSpanData()->getTraceId();
+            $record->extra['span_id'] = $span->toSpanData()->getSpanId();
+            $record->extra['parent_span_id'] = $span->toSpanData()->getParentSpanId();
+        }
+        return $record;
+    }
+}
 
 // Instantiate PHP-DI ContainerBuilder
 $containerBuilder = new ContainerBuilder();
@@ -74,6 +92,12 @@ if (($meterProvider = Globals::meterProvider()) instanceof MeterProviderInterfac
         $meterProvider->forceFlush();
     });
 }
+
+// TODO TraceProcessor can be injected via configuration
+$logger = $container->get(LoggerInterface::class);
+$logger->pushProcessor(new \TraceProcessor());
+
+$logger->info('Quote service start');
 
 $server = new HttpServer(function (ServerRequestInterface $request) use ($app) {
     $response = $app->handle($request);
