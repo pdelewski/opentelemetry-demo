@@ -18,7 +18,8 @@ class CustomJsonFormatter(jsonlogger.JsonFormatter):
             log_record['otelSpanID'] = trace.format_span_id(trace.get_current_span().get_span_context().span_id)
         if trace.get_current_span().is_recording():
             if not log_record.get('otelParentSpanID'):
-                log_record['otelParentSpanID'] = trace.format_span_id(trace.get_current_span().parent.span_id)
+                if hasattr(trace.get_current_span().parent, 'span_id'):
+                    log_record['otelParentSpanID'] = trace.format_span_id(trace.get_current_span().parent.span_id)
 
 def getJSONLogger(name):
     logger = logging.getLogger(name)
