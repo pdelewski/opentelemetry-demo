@@ -27,6 +27,8 @@ import demo_pb2_grpc
 from grpc_health.v1 import health_pb2
 from grpc_health.v1 import health_pb2_grpc
 
+from logger import getJSONLogger
+
 from metrics import (
     init_metrics
 )
@@ -124,6 +126,7 @@ def check_feature_flag(flag_name: str):
 
 
 if __name__ == "__main__":
+    logger = logging.getLogger('main')
     service_name = must_map_env('OTEL_SERVICE_NAME')
 
     # Initialize Traces and Metrics
@@ -145,9 +148,9 @@ if __name__ == "__main__":
     handler = LoggingHandler(level=logging.NOTSET, logger_provider=logger_provider)
 
     # Attach OTLP handler to logger
-    logger = logging.getLogger('main')
-    logger.addHandler(handler)
-
+    #logger = logging.getLogger('main')
+    #logger.addHandler(handler)
+    logger = getJSONLogger('main')
     catalog_addr = must_map_env('PRODUCT_CATALOG_SERVICE_ADDR')
     pc_channel = grpc.insecure_channel(catalog_addr)
     product_catalog_stub = demo_pb2_grpc.ProductCatalogServiceStub(pc_channel)
