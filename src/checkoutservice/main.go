@@ -209,7 +209,11 @@ func (cs *checkoutService) PlaceOrder(ctx context.Context, req *pb.PlaceOrderReq
 		attribute.String("app.user.currency", req.UserCurrency),
 	)
 	spanCtx := trace.SpanContextFromContext(ctx)
-	log.Infof("[PlaceOrder] user_id=%q user_currency=%q trace_id=%q span_id=%q", req.UserId, req.UserCurrency, spanCtx.TraceID().String(), spanCtx.SpanID().String())
+        var parent_span_id string
+	if sp, ok := span.(sdktrace.ReadOnlySpan); ok {
+                parent_span_id = sp.Parent().SpanID().String()
+	}
+	log.Infof("[PlaceOrder] user_id=%q user_currency=%q trace_id=%q span_id=%q, parent_span_id=%q", req.UserId, req.UserCurrency, spanCtx.TraceID().String(), spanCtx.SpanID().String(), parent_span_id)
 
 	var err error
 	defer func() {
@@ -242,7 +246,7 @@ func (cs *checkoutService) PlaceOrder(ctx context.Context, req *pb.PlaceOrderReq
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to charge card: %+v", err)
 	}
-	log.Infof("payment went through (transaction_id: %s, trace_id: %s, span_id: %s)", txID, spanCtx.TraceID().String(), spanCtx.SpanID().String())
+	log.Infof("payment went through (transaction_id: %s, trace_id: %s, span_id: %s, parent_span_id=%s)", txID, spanCtx.TraceID().String(), spanCtx.SpanID().String(), parent_span_id)
 	span.AddEvent("charged",
 		trace.WithAttributes(attribute.String("app.payment.transaction.id", txID)))
 
@@ -275,9 +279,9 @@ func (cs *checkoutService) PlaceOrder(ctx context.Context, req *pb.PlaceOrderReq
 	)
 
 	if err := cs.sendOrderConfirmation(ctx, req.Email, orderResult); err != nil {
-		log.Warnf("failed to send order confirmation to %q: %+v, trace_id: %q, span_id: %q", req.Email, err,spanCtx.TraceID().String(), spanCtx.SpanID().String())
+		log.Warnf("failed to send order confirmation to %q: %+v, trace_id: %q, span_id: %q, parent_span_id: %q", req.Email, err,spanCtx.TraceID().String(), spanCtx.SpanID().String(), parent_span_id)
 	} else {
-		log.Infof("order confirmation email sent to %q trace_id: %q, span_id: %q", req.Email, spanCtx.TraceID().String(), spanCtx.SpanID().String())
+		log.Infof("order confirmation email sent to %q trace_id: %q, span_id: %q, parent_span_id: %q", req.Email, spanCtx.TraceID().String(), spanCtx.SpanID().String(), parent_span_id)
 	}
 
 	// send to kafka only if kafka broker address is set
