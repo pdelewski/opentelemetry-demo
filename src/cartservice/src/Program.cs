@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 using System;
-
+using System.IO;
 using cartservice.cartstore;
 using cartservice.featureflags;
 using cartservice.services;
@@ -15,6 +15,9 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.ResourceDetectors.Container;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+
+FileInfo configFile = new FileInfo("cartservice.dll.config");
+log4net.Config.XmlConfigurator.Configure(configFile);
 
 var builder = WebApplication.CreateBuilder(args);
 string redisAddress = builder.Configuration["REDIS_ADDR"];

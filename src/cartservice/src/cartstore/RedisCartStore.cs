@@ -11,6 +11,7 @@ namespace cartservice.cartstore;
 
 public class RedisCartStore : ICartStore
 {
+    private static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(RedisCartStore));
     private const string CartFieldName = "cart";
     private const int RedisRetryNumber = 30;
 
@@ -103,7 +104,7 @@ public class RedisCartStore : ICartStore
 
     public async Task AddItemAsync(string userId, string productId, int quantity)
     {
-        Console.WriteLine($"AddItemAsync called with userId={userId}, productId={productId}, quantity={quantity}");
+        log.InfoFormat("AddItemAsync called with userId={0}, productId={1}, quantity={2}", userId, productId, quantity);
 
         try
         {

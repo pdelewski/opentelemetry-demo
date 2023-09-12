@@ -10,6 +10,7 @@ namespace cartservice.cartstore;
 
 internal class LocalCartStore : ICartStore
 {
+    private static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(LocalCartStore));
     // Maps between user and their cart
     private readonly ConcurrentDictionary<string, Oteldemo.Cart> _userCartItems = new();
     private readonly Oteldemo.Cart _emptyCart = new();
@@ -23,7 +24,7 @@ internal class LocalCartStore : ICartStore
 
     public Task AddItemAsync(string userId, string productId, int quantity)
     {
-        Console.WriteLine($"AddItemAsync called with userId={userId}, productId={productId}, quantity={quantity}");
+        log.InfoFormat("AddItemAsync called with userId={0}, productId={1}, quantity={2}", userId, productId, quantity);
         var newCart = new Oteldemo.Cart
         {
             UserId = userId,
