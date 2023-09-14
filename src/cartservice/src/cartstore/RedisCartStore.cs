@@ -67,34 +67,32 @@ public class RedisCartStore : ICartStore
                 return;
             }
 
-            Console.WriteLine("Connecting to Redis: " + _connectionString);
+            log.InfoFormat("Connecting to Redis: {0} ", _connectionString);
             _redis = ConnectionMultiplexer.Connect(_redisConnectionOptions);
 
             if (_redis == null || !_redis.IsConnected)
             {
-                Console.WriteLine("Wasn't able to connect to redis");
-
+                log.InfoFormat("Wasn't able to connect to redis");
                 // We weren't able to connect to Redis despite some retries with exponential backoff.
                 throw new ApplicationException("Wasn't able to connect to redis");
             }
 
-            Console.WriteLine("Successfully connected to Redis");
+            log.InfoFormat("Successfully connected to Redis");
             var cache = _redis.GetDatabase();
 
-            Console.WriteLine("Performing small test");
+            log.InfoFormat("Performing small test");
             cache.StringSet("cart", "OK" );
             object res = cache.StringGet("cart");
-            Console.WriteLine($"Small test result: {res}");
-
+            log.InfoFormat("Small test result: {0}",res);
             _redis.InternalError += (_, e) => { Console.WriteLine(e.Exception); };
             _redis.ConnectionRestored += (_, _) =>
             {
                 _isRedisConnectionOpened = true;
-                Console.WriteLine("Connection to redis was restored successfully.");
+                log.InfoFormat("Connection to redis was restored successfully.");
             };
             _redis.ConnectionFailed += (_, _) =>
             {
-                Console.WriteLine("Connection failed. Disposing the object");
+                log.InfoFormat("Connection failed. Disposing the object");
                 _isRedisConnectionOpened = false;
             };
 
@@ -149,8 +147,7 @@ public class RedisCartStore : ICartStore
 
     public async Task EmptyCartAsync(string userId)
     {
-        Console.WriteLine($"EmptyCartAsync called with userId={userId}");
-
+        log.InfoFormat("EmptyCartAsync called with userId={0}", userId);
         try
         {
             EnsureRedisConnected();
@@ -168,8 +165,7 @@ public class RedisCartStore : ICartStore
 
     public async Task<Oteldemo.Cart> GetCartAsync(string userId)
     {
-        Console.WriteLine($"GetCartAsync called with userId={userId}");
-
+        log.InfoFormat("GetCartAsync called with userId={0}", userId);
         try
         {
             EnsureRedisConnected();

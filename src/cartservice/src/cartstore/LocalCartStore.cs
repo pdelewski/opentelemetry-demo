@@ -17,8 +17,7 @@ internal class LocalCartStore : ICartStore
 
     public Task InitializeAsync()
     {
-        Console.WriteLine("Local Cart Store was initialized");
-
+        log.InfoFormat("Local Cart Store was initialized");
         return Task.CompletedTask;
     }
 
@@ -61,10 +60,10 @@ internal class LocalCartStore : ICartStore
 
     public Task<Oteldemo.Cart> GetCartAsync(string userId)
     {
-        Console.WriteLine($"GetCartAsync called with userId={userId}");
+        log.InfoFormat("GetCartAsync called with userId={0}", userId);
         if (!_userCartItems.TryGetValue(userId, out var cart))
         {
-            Console.WriteLine($"No carts for user {userId}");
+            log.InfoFormat("No carts for user {0}", 0);
             return Task.FromResult(_emptyCart);
         }
 
