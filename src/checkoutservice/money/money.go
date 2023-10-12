@@ -6,6 +6,11 @@ import (
 	"errors"
 
 	pb "github.com/open-telemetry/opentelemetry-demo/src/checkoutservice/genproto/oteldemo"
+        _ "context"
+        _ "go.opentelemetry.io/otel"
+        _ "go.opentelemetry.io/otel/sdk/trace"
+        _ "go.opentelemetry.io/otel/trace"
+        _ "runtime"
 )
 
 const (

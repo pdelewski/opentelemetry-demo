@@ -25,6 +25,11 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+        _ "context"
+        _ "go.opentelemetry.io/otel"
+        _ "go.opentelemetry.io/otel/sdk/trace"
+        _ "go.opentelemetry.io/otel/trace"
+        _ "runtime"	
 )
 
 // This is a compile-time assertion to ensure that this generated file

@@ -41,6 +41,12 @@ import (
 	pb "github.com/open-telemetry/opentelemetry-demo/src/checkoutservice/genproto/oteldemo"
 	"github.com/open-telemetry/opentelemetry-demo/src/checkoutservice/kafka"
 	"github.com/open-telemetry/opentelemetry-demo/src/checkoutservice/money"
+        _ "context"
+        _ "go.opentelemetry.io/otel"
+        _ "go.opentelemetry.io/otel/sdk/trace"
+        _ "go.opentelemetry.io/otel/trace"
+        _ "runtime"	
+        "go.opentelemetry.io/contrib/instrgen/rtlib"
 )
 
 //go:generate go install google.golang.org/protobuf/cmd/protoc-gen-go

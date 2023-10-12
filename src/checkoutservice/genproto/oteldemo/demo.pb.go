@@ -26,6 +26,11 @@ import (
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
+        _ "context"
+        _ "go.opentelemetry.io/otel"
+        _ "go.opentelemetry.io/otel/sdk/trace"
+        _ "go.opentelemetry.io/otel/trace"
+        _ "runtime"	
 )
 
 const (

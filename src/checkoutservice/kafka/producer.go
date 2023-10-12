@@ -5,6 +5,11 @@ package kafka
 import (
 	"github.com/IBM/sarama"
 	"github.com/sirupsen/logrus"
+	_ "context"
+        _ "go.opentelemetry.io/otel"
+        _ "go.opentelemetry.io/otel/sdk/trace"
+        _ "go.opentelemetry.io/otel/trace"
+        _ "runtime"
 )
 
 var (
