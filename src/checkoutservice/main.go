@@ -38,15 +38,15 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
 
+	_ "context"
 	pb "github.com/open-telemetry/opentelemetry-demo/src/checkoutservice/genproto/oteldemo"
 	"github.com/open-telemetry/opentelemetry-demo/src/checkoutservice/kafka"
 	"github.com/open-telemetry/opentelemetry-demo/src/checkoutservice/money"
-        _ "context"
-        _ "go.opentelemetry.io/otel"
-        _ "go.opentelemetry.io/otel/sdk/trace"
-        _ "go.opentelemetry.io/otel/trace"
-        _ "runtime"	
-        "go.opentelemetry.io/contrib/instrgen/rtlib"
+	"go.opentelemetry.io/contrib/instrgen/rtlib"
+	_ "go.opentelemetry.io/otel"
+	_ "go.opentelemetry.io/otel/sdk/trace"
+	_ "go.opentelemetry.io/otel/trace"
+	_ "runtime"
 )
 
 //go:generate go install google.golang.org/protobuf/cmd/protoc-gen-go
@@ -136,6 +136,8 @@ type checkoutService struct {
 func main() {
 	var port string
 	mustMapEnv(&port, "CHECKOUT_SERVICE_PORT")
+
+	rtlib.AutotelEntryPoint()
 
 	tp := initTracerProvider()
 	defer func() {
