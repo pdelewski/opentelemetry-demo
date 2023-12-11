@@ -17,6 +17,9 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.ResourceDetectors.Container;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using SumoLogic.LoggingContext;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging.Console;
 
 var builder = WebApplication.CreateBuilder(args);
 string redisAddress = builder.Configuration["REDIS_ADDR"];
@@ -28,7 +31,7 @@ if (string.IsNullOrEmpty(redisAddress))
 
 builder.Logging
     .AddOpenTelemetry(options => options.AddOtlpExporter())
-    .AddConsole();
+    .AddConsole().AddConsoleFormatter<MsELTracingContextConsoleFormatter, ConsoleFormatterOptions>();;
 
 builder.Services.AddSingleton<ICartStore>(x=>
 {
